@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"gitlab.wm.local/mail/mail_backend/pkg/transport/rabbitmq"
+	"gitlab.wm.local/mail/pkg/transport/rabbitmq"
 )
 
 type Pusher interface {

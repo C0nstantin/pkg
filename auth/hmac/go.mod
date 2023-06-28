@@ -1,4 +1,4 @@
-module gitlab.wm.local/mail/auth/hmac
+module gitlab.wm.local/mail/pkg/auth/hmac
 
 go 1.19
 

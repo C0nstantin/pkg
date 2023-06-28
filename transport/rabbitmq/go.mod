@@ -1,4 +1,4 @@
-module rabbitmq
+module gitlab.wm.local/mail/pkg/transport/rabbitmq
 
 go 1.19
 

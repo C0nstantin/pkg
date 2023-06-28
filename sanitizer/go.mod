@@ -1,4 +1,4 @@
-module gitlab.wm.local/mail/mailbackend/pkg/sanitizer
+module gitlab.wm.local/mail/pkg/sanitizer
 
 go 1.19
 

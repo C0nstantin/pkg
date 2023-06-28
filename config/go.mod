@@ -1,4 +1,4 @@
-module gitlab.wm.local/mail/mailbackend/pkg/config
+module gitlab.wm.local/mail/pkg/config
 
 go 1.19
 

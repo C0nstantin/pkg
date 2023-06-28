@@ -1,4 +1,4 @@
-module gitlab.wm.local/mail/mailbackend/pkg/jwt
+module gitlab.wm.local/mail/pkg/auth/jwt
 
 go 1.19
 

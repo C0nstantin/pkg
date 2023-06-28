@@ -1,4 +1,4 @@
-module gitlab.wm.local/mail/mailbackend/pkg/errors
+module gitlab.wm.local/mail/pkg/errors
 
 go 1.19
 

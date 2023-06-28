@@ -1,9 +1,10 @@
-module gitlab.wm.local/mail/mailbackend/pkg/imap
+module gitlab.wm.local/mail/pkg/imap
 
 go 1.19
 
 require (
 	github.com/emersion/go-imap v1.2.1
+	github.com/emersion/go-imap-quota v0.0.0-20210203125329-619074823f3c
 	github.com/emersion/go-imap-sortthread v1.2.0
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
 )

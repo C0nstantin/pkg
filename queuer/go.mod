@@ -1,4 +1,4 @@
-module gitlab.wm.local/mail/mailbackend/pkg/queuer
+module gitlab.wm.local/mail/pkg/queuer
 
 go 1.19
 

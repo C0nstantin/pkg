@@ -3,6 +3,8 @@ github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/emersion/go-imap v1.0.5/go.mod h1:yKASt+C3ZiDAiCSssxg9caIckWF/JG7ZQTO7GAmvicU=
 github.com/emersion/go-imap v1.2.1 h1:+s9ZjMEjOB8NzZMVTM3cCenz2JrQIGGo5j1df19WjTA=
 github.com/emersion/go-imap v1.2.1/go.mod h1:Qlx1FSx2FTxjnjWpIlVNEuX+ylerZQNFE5NsmKFSejY=
+github.com/emersion/go-imap-quota v0.0.0-20210203125329-619074823f3c h1:khcEdu1yFiZjBgi7gGnQiLhpSgghJ0YTnKD0l4EUqqc=
+github.com/emersion/go-imap-quota v0.0.0-20210203125329-619074823f3c/go.mod h1:iApyhIQBiU4XFyr+3kdJyyGqle82TbQyuP2o+OZHrV0=
 github.com/emersion/go-imap-sortthread v1.2.0 h1:EMVEJXPWAhXMWECjR82Rn/tza6MddcvTwGAdTu1vJKU=
 github.com/emersion/go-imap-sortthread v1.2.0/go.mod h1:UhenCBupR+vSYRnqJkpjSq84INUCsyAK1MLpogv14pE=
 github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9 h1:2Kbw3iu7fFeSso6RWIArVNUj1VGG2PvjetnPUW7bnis=

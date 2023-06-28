@@ -1,0 +1,12 @@
+github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuPk=
+github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
+github.com/gorilla/css v1.0.0 h1:BQqNyPTi50JCFMTw/b67hByjMVXZRwGha6wxVGkeihY=
+github.com/gorilla/css v1.0.0/go.mod h1:Dn721qIggHpt4+EFCcTLTU/vk5ySda2ReITrtgBl60c=
+github.com/microcosm-cc/bluemonday v1.0.24 h1:NGQoPtwGVcbGkKfvyYk1yRqknzBuoMiUrO6R7uFTPlw=
+github.com/microcosm-cc/bluemonday v1.0.24/go.mod h1:ArQySAMps0790cHSkdPEJ7bGkF2VePWH773hsJNSHf8=
+github.com/rollick/douceur v0.3.3 h1:z3QcyrcaxmULIYToYtuE17LqaDgvaYqpsfJJgttbyc4=
+github.com/rollick/douceur v0.3.3/go.mod h1:TBu/yAgvRrUcfj1MoQ2nP4Enr1zpz8iGMczoEXwy5us=
+github.com/slt/douceur v0.3.3 h1:faAL6w6asG85ETdHNUS8z0X1HmkWiCz4fAE/f5mw4TU=
+github.com/slt/douceur v0.3.3/go.mod h1:Uj3JyC1ZjAXLimbcCogGYSu2PYiTiQeBsweZZAdJV0g=
+golang.org/x/net v0.11.0 h1:Gi2tvZIJyBtO9SDr1q9h5hEQCp/4L2RQ+ar0qjx2oNU=
+golang.org/x/net v0.11.0/go.mod h1:2L/ixqYpgIVXmeoSA/4Lu7BzTG4KIyPIryS4IsOd1oQ=

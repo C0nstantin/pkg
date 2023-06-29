@@ -388,7 +388,7 @@ func (client *Client) Append(mboxName string, message imap.Literal) (validity ui
 func (client *Client) Move(uids []uint, mboxName string) error {
 	seqSet := new(imap.SeqSet)
 	var seq []uint32
-	for uid := range uids {
+	for _, uid := range uids {
 		seq = append(seq, uint32(uid))
 	}
 

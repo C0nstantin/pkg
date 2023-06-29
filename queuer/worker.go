@@ -3,9 +3,10 @@ package queuer
 import (
 	"errors"
 	"fmt"
+	"time"
+
 	amqp "github.com/rabbitmq/amqp091-go"
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
 var (

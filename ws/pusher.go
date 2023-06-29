@@ -24,7 +24,7 @@ func (e *PusherImpl) Close() {
 // Push send message type wsType with body, for set user use key
 func (e *PusherImpl) Push(key, wsType, sender string, body interface{}) error {
 	if key == "" {
-		return errors.New("Key can't be empty")
+		return errors.New("key can't be empty")
 	}
 	if body == nil || wsType == "" || sender == "" {
 		return errors.New("message format not supported")

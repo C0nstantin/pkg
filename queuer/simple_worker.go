@@ -1,9 +1,10 @@
 package queuer
 
 import (
-	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
 	"time"
+
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type rejector struct {

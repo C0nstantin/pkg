@@ -18,7 +18,7 @@ type errWithStack struct {
 func (e *errWithStack) Unwrap() error {
 	return e.err
 }
-func (w *errWithStack) Cause() error { return w.err }
+func (e *errWithStack) Cause() error { return e.err }
 func (e *errWithStack) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 'v':

@@ -77,3 +77,7 @@ func Println(args ...interface{}) {
 func Tracef(format string, args ...interface{}) {
 	logrus.Tracef(format, args...)
 }
+
+func Panic(args ...interface{}) {
+	logrus.Panic(args...)
+}

@@ -101,9 +101,12 @@ func (d *Client) MailBoxStatus(params FolderRequestParams) ([]MailBox, error) {
 	}
 
 	var response [][]interface{}
+	// fmt.Printf("json: %s\n", result)
 	if err := json.Unmarshal(result, &response); err != nil {
 		return nil, err
 	}
+	// fmt.Printf("response: %#v\n", response)
+
 	var mailboxes []MailBox
 	res := response[0]
 	if status, ok := res[0].(string); ok {
@@ -118,7 +121,7 @@ func (d *Client) MailBoxStatus(params FolderRequestParams) ([]MailBox, error) {
 							case "mailbox":
 								folder.Mailbox = tagVal.(string)
 							case "unseen":
-								folder.Mailbox = tagVal.(string)
+								folder.Unseen = tagVal.(string)
 							case "vsize":
 								folder.Vsize = tagVal.(string)
 							case "messages":

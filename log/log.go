@@ -2,6 +2,7 @@ package log
 
 import (
 	"os"
+	"runtime"
 
 	"github.com/sirupsen/logrus"
 )
@@ -38,7 +39,9 @@ func DefaultLogger() *logrus.Logger {
 }
 
 func Debugf(format string, args ...interface{}) {
-	logrus.Debugf(format, args...)
+	_, file, line, _ := runtime.Caller(1)
+	args = append(args, file, line)
+	logrus.Debugf(format+"call:%s:%d", args...)
 }
 
 func Infof(format string, args ...interface{}) {

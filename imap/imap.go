@@ -123,7 +123,7 @@ func (client *Client) FetchThreads(criteria *imap.SearchCriteria, mboxName strin
 		return nil, nil, 0, 0, fmt.Errorf("server doesn't support THREAD")
 	}
 
-	threadAlgorithm := "REFERENCES" // REFS REFERENCES ORDEREDSUBJECT
+	threadAlgorithm := "ORDEREDSUBJECT" // REFS REFERENCES ORDEREDSUBJECT
 	results, err := sc.UidThread(sortthread.ThreadAlgorithm(threadAlgorithm), criteria)
 	if err != nil {
 		return nil, nil, 0, 0, fmt.Errorf("error get uids > %w", err)
@@ -359,9 +359,7 @@ func (client *Client) FetchUids(mboxName string) ([]uint, error) {
 	return uids, nil
 }
 
-func (client *Client) Delete(uid uint) error {
-	seqSet := new(imap.SeqSet)
-	seqSet.AddNum(uint32(uid))
+func (client *Client) Expunge() error {
 	if err := client.imap.Expunge(nil); err != nil {
 		return errors.New("failed to delete messages")
 	}
@@ -396,40 +394,50 @@ func (client *Client) Move(uids []uint, mboxName string) error {
 	return client.imap.UidMove(seqSet, mboxName)
 }
 
-func (client *Client) AddFlags(uid uint, flags []interface{}) error {
+func (client *Client) AddFlags(uids []uint, flags []interface{}) error {
 	seqSet := new(imap.SeqSet)
-	seqSet.AddNum(uint32(uid))
+	var seq []uint32
+	for _, uid := range uids {
+		seq = append(seq, uint32(uid))
+	}
+
+	seqSet.AddNum(seq...)
 	item := imap.FormatFlagsOp(imap.AddFlags, true)
 	return client.imap.UidStore(seqSet, item, flags, nil)
 }
 
-func (client *Client) RemoveFlags(uid uint, flags []interface{}) error {
+func (client *Client) RemoveFlags(uids []uint, flags []interface{}) error {
 	seqSet := new(imap.SeqSet)
-	seqSet.AddNum(uint32(uid))
+	var seq []uint32
+	for _, uid := range uids {
+		seq = append(seq, uint32(uid))
+	}
+
+	seqSet.AddNum(seq...)
 	item := imap.FormatFlagsOp(imap.RemoveFlags, true)
 	return client.imap.UidStore(seqSet, item, flags, nil)
 }
 
-func (client *Client) MarkMessageAnswered(uid uint) error {
-	return client.AddFlags(uid, []interface{}{imap.AnsweredFlag})
+func (client *Client) MarkMessageAnswered(uids []uint) error {
+	return client.AddFlags(uids, []interface{}{imap.AnsweredFlag})
 }
-func (client *Client) MarkMessageSeen(uid uint) error {
-	return client.AddFlags(uid, []interface{}{imap.SeenFlag})
+func (client *Client) MarkMessageSeen(uids []uint) error {
+	return client.AddFlags(uids, []interface{}{imap.SeenFlag})
 }
-func (client *Client) MarkMessageUnseen(uid uint) error {
-	return client.RemoveFlags(uid, []interface{}{imap.SeenFlag})
+func (client *Client) MarkMessageUnseen(uids []uint) error {
+	return client.RemoveFlags(uids, []interface{}{imap.SeenFlag})
 }
-func (client *Client) MarkMessageFlagget(uid uint) error {
-	return client.AddFlags(uid, []interface{}{imap.FlaggedFlag})
+func (client *Client) MarkMessageFlagget(uids []uint) error {
+	return client.AddFlags(uids, []interface{}{imap.FlaggedFlag})
 }
-func (client *Client) MarkMessageUnflagget(uid uint) error {
-	return client.RemoveFlags(uid, []interface{}{imap.FlaggedFlag})
+func (client *Client) MarkMessageUnflagget(uids []uint) error {
+	return client.RemoveFlags(uids, []interface{}{imap.FlaggedFlag})
 }
-func (client *Client) MarkMessageLabeled(uid uint, label string) error {
-	return client.AddFlags(uid, []interface{}{label})
+func (client *Client) MarkMessageLabeled(uids []uint, label string) error {
+	return client.AddFlags(uids, []interface{}{label})
 }
-func (client *Client) MarkMessageUnlabeled(uid uint, label string) error {
-	return client.RemoveFlags(uid, []interface{}{label})
+func (client *Client) MarkMessageUnlabeled(uids []uint, label string) error {
+	return client.RemoveFlags(uids, []interface{}{label})
 }
 
 func (client *Client) FolderUnreadCount(name string) (count uint, err error) {

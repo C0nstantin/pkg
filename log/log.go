@@ -3,7 +3,7 @@ package log
 import (
 	"os"
 	"runtime"
-
+	
 	"github.com/sirupsen/logrus"
 )
 
@@ -24,7 +24,7 @@ func init() {
 
 func DefaultLogger() *logrus.Logger {
 	logger := logrus.StandardLogger()
-
+	
 	logger.SetLevel(logrus.InfoLevel)
 	if os.Getenv("DEBUG") != "" {
 		logger.SetLevel(logrus.TraceLevel)
@@ -41,7 +41,7 @@ func DefaultLogger() *logrus.Logger {
 func Debugf(format string, args ...interface{}) {
 	_, file, line, _ := runtime.Caller(1)
 	args = append(args, file, line)
-	logrus.Debugf(format+"call:%s:%d", args...)
+	logrus.Debugf(format+" call:%s:%d", args...)
 }
 
 func Infof(format string, args ...interface{}) {

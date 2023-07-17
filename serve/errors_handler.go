@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type Nofifirer interface {
+type Notificator interface {
 	Notify(err interface{}, r *http.Request)
 }
 type DefaultErrorHandler struct {
@@ -24,7 +24,7 @@ type DefaultErrorHandler struct {
 	NotFoundErrorTypeErrors []interface{}
 	ForbiddenTypeErrors     []interface{}
 	
-	Notifier Nofifirer
+	Notifier Notificator
 }
 
 func (e *DefaultErrorHandler) Handler() []gin.HandlerFunc {

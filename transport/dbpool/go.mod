@@ -1,4 +1,4 @@
-module dbpool
+module gitlab.wm.local/mail/pkg/transport/dbpool
 
 go 1.19
 

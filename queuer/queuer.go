@@ -61,3 +61,10 @@ func PublishMessage(c Config, publishing *amqp.Publishing) error {
 
 	return nil
 }
+
+func PublishTextMessage(c Config, message []byte) error {
+	return PublishMessage(c, &amqp.Publishing{
+		ContentType: "text/plain",
+		Body:        message,
+	})
+}

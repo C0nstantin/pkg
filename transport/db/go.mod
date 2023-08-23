@@ -1,4 +1,4 @@
-module gitlab.wm.local/mail/pkg/transport/db
+module gitlab.wm.local/wm/pkg/transport/db
 
 go 1.19
 

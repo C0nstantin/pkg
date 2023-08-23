@@ -1,4 +1,4 @@
-module gitlab.wm.local/mail/pkg/log
+module gitlab.wm.local/wm/pkg/log
 
 go 1.19
 

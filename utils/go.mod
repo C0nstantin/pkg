@@ -1,4 +1,4 @@
-module gitlab.wm.local/mail/pkg/utils
+module gitlab.wm.local/wm/pkg/utils
 
 go 1.19
 

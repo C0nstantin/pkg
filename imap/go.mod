@@ -1,4 +1,4 @@
-module gitlab.wm.local/mail/pkg/imap
+module gitlab.wm.local/wm/pkg/imap
 
 go 1.19
 

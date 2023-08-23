@@ -1,3 +1,3 @@
-module gitlab.wm.local/mail/pkg/types
+module gitlab.wm.local/wm/pkg/types
 
 go 1.19

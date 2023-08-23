@@ -1,4 +1,4 @@
-module gitlab.wm.local/mail/pkg/smtpd
+module gitlab.wm.local/wm/pkg/smtpd
 
 go 1.19
 

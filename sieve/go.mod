@@ -1,4 +1,4 @@
-module gitlab.wm.local/mail/pkg/sieve
+module gitlab.wm.local/wm/pkg/sieve
 
 go 1.19
 

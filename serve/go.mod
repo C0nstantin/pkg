@@ -1,4 +1,4 @@
-module gitlab.wm.local/mail/pkg/serve
+module gitlab.wm.local/wm/pkg/serve
 
 go 1.19
 

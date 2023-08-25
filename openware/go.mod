@@ -1,18 +1,13 @@
-module gitlab.wm.local/wm/pkg/openware/pkg
-
+module gitlab.wm.local/wm/pkg/openware
 go 1.18
 
 require (
 	github.com/alicebob/miniredis/v2 v2.23.0
 	github.com/fbiville/markdown-table-formatter v0.3.0
-	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/gomarkdown/markdown v0.0.0-20220830015526-01a3c37d6f50
 	github.com/hashicorp/vault/api v1.7.2
 	github.com/iancoleman/strcase v0.2.0
 	github.com/openware/pkg/ika v0.1.1
-	github.com/openware/pkg/mngapi v0.1.1
 	github.com/stretchr/testify v1.8.1
 	gorm.io/driver/mysql v1.4.7
 	gorm.io/driver/postgres v1.5.0

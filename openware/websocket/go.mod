@@ -1,4 +1,4 @@
-module github.com/openware/pkg/websocket
+module gitlab.wm.local/wm/pkg/openware/websocket
 
 go 1.18
 

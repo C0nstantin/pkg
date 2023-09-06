@@ -1,4 +1,4 @@
-module github.com/openware/pkg/kube
+module gitlab.wm.local/wm/pkg/openware/kube
 
 go 1.18
 

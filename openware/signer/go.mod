@@ -1,4 +1,4 @@
-module github.com/openware/pkg/signer
+module gitlab.wm.local/wm/pkg/openware/signer
 
 go 1.18
 

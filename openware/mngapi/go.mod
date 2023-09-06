@@ -1,4 +1,4 @@
-module github.com/openware/pkg/mngapi
+module gitlab.wm.local/wm/pkg/openware/mngapi
 
 go 1.18
 

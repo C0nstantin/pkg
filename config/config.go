@@ -32,6 +32,10 @@ func LoadConfig(cfg interface{}) error {
 			return fmt.Errorf("undefined error with config file:  %w ", err)
 		default:
 			log.Println("Warning: config file not found")
+			err := cleanenv.ReadEnv(cfg)
+			if err != nil {
+				return err
+			}
 			return nil // ErrFileNotExists
 		}
 	}

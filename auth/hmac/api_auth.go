@@ -24,8 +24,9 @@ import (
 var AuthHeaderPattern = `APIAuth(?P<digest>-HMAC-(MD5|SHA(?:1|224|256|384|512)?))? (?P<access_id>[^:]+):(?P<sign>.+)$`
 
 type APIAuth struct {
-	SecretKey []byte
-	AccessID  string
+	SecretKey    []byte
+	AccessID     string
+	EncodeBase64 bool
 }
 
 type signParams struct {
@@ -161,6 +162,10 @@ func (a *APIAuth) setAuthHeader(r *http.Request, accessID string, canonicalStrin
 	mac := hmac.New(hh, a.SecretKey)
 	mac.Write([]byte(canonicalString))
 	hmacString := hex.EncodeToString(mac.Sum(nil))
+	if a.EncodeBase64 {
+		hmacString = base64.StdEncoding.EncodeToString(mac.Sum(nil))
+
+	}
 	r.Header.Set(AuthorizeVariants[0], fmt.Sprintf("APIAuth-HMAC-%s %s:%s", strings.ToUpper(digest), accessID, hmacString))
 	return nil
 }

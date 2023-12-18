@@ -39,6 +39,14 @@ func (b *BaseController) DELETE(r gin.IRoutes, p string, f func(ctx *gin.Context
 	})
 }
 
+func (b *BaseController) PUT(r gin.IRoutes, p string, f func(ctx *gin.Context) error) {
+	r.PUT(p, func(ctx *gin.Context) {
+		if err := f(ctx); err != nil {
+			b.Abort(ctx, err)
+		}
+	})
+}
+
 func (b *BaseController) Abort(ctx *gin.Context, err error) {
 	ctx.Abort()
 	// logs.Printf("%+v", err)

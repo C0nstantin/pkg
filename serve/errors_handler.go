@@ -2,16 +2,22 @@ package serve
 
 import (
 	"net/http"
-	
+
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	
+
 	"github.com/pkg/errors"
 )
 
 type Notificator interface {
 	Notify(err interface{}, r *http.Request)
 }
+
+type ErrorHandler interface {
+	Handler() []gin.HandlerFunc
+	Notificator
+}
+
 type DefaultErrorHandler struct {
 	Logger                  *log.Logger
 	BadRequestErrors        []error
@@ -23,7 +29,7 @@ type DefaultErrorHandler struct {
 	BadRequestTypeErrors    []interface{}
 	NotFoundErrorTypeErrors []interface{}
 	ForbiddenTypeErrors     []interface{}
-	
+
 	Notifier Notificator
 }
 
@@ -39,21 +45,21 @@ func (e *DefaultErrorHandler) Handler() []gin.HandlerFunc {
 		}
 		e.Logger.Infof("Error in handler: %s", err.Error())
 		e.Logger.Infof("Error unwrapped: %+v", err.Unwrap())
-		
+
 		for _, er := range e.IgnoreErrors {
 			if errors.Is(err, er) {
 				e.Logger.Debugf("Ignore error: %s", err.Error())
 			}
 			return
 		}
-		
+
 		if err.Error() == "EOF" {
 			ctx.JSON(http.StatusBadRequest,
 				gin.H{"error": "empty_request_params"},
 			)
 			return
 		}
-		
+
 		if err.Type == gin.ErrorTypeBind {
 			ctx.JSON(http.StatusBadRequest,
 				gin.H{"error": "invalid_request_params"},

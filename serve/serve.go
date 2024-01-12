@@ -24,12 +24,13 @@ type OneMiddleware interface {
 }
 
 type HTTPServe struct {
-	Controllers map[string]Controller
-	Auth        Auth
-	BasePath    string
-	R           *gin.Engine
-	Listen      string
-	Middleware  []Middleware
+	Controllers  map[string]Controller
+	Auth         Auth
+	BasePath     string
+	R            *gin.Engine
+	Listen       string
+	Middleware   []Middleware
+	ErrorHandler ErrorHandler
 }
 
 func (s *HTTPServe) Init() {
@@ -48,6 +49,9 @@ func (s *HTTPServe) Run() error {
 	group := s.R.Group(s.BasePath)
 	if s.Auth != nil {
 		group.Use(s.Auth.AuthMiddleware())
+	}
+	if s.ErrorHandler != nil {
+		group.Use(s.ErrorHandler.Handler()...)
 	}
 	for _, middleware := range s.Middleware {
 		group.Use(middleware.Handler()...)

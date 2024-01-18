@@ -3,7 +3,7 @@ package log
 import (
 	"os"
 	"runtime"
-	
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -15,7 +15,7 @@ func init() {
 		TimestampFormat: "2006-01-02 15:04:05",
 	})
 	logrus.SetLevel(logrus.InfoLevel)
-	if os.Getenv("DEBUG") != "" {
+	if os.Getenv("DEBUG") != "" || os.Getenv("LOG_LEVEL") == "DEBUG" || os.Getenv("LOG_LEVEL") == "TRACE" {
 		logrus.SetLevel(logrus.TraceLevel)
 		logrus.Debugln("DEBUG MODE IS ENABLED")
 	}
@@ -24,7 +24,7 @@ func init() {
 
 func DefaultLogger() *logrus.Logger {
 	logger := logrus.StandardLogger()
-	
+
 	logger.SetLevel(logrus.InfoLevel)
 	if os.Getenv("DEBUG") != "" {
 		logger.SetLevel(logrus.TraceLevel)

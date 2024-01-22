@@ -44,8 +44,7 @@ func (s *HTTPServe) Init() {
 		s.R = gin.Default()
 	}
 }
-
-func (s *HTTPServe) Run() error {
+func (s *HTTPServe) InitRoute() {
 	group := s.R.Group(s.BasePath)
 	if s.Auth != nil {
 		group.Use(s.Auth.AuthMiddleware())
@@ -65,7 +64,10 @@ func (s *HTTPServe) Run() error {
 	s.R.GET("/ping", func(context *gin.Context) {
 		context.String(http.StatusOK, "pong")
 	})
+}
 
+func (s *HTTPServe) Run() error {
+	s.InitRoute()
 	err := s.R.Run(s.Listen)
 	if err != nil {
 		return err

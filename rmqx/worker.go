@@ -100,14 +100,16 @@ func (b *baseWorker) Handle(ctx context.Context, msg *amqp.Delivery) {
 	b.done <- msg
 }
 
-func (b *baseWorker) Close() {
+func (b *baseWorker) Close() error {
 	b.logger.Printf("✅ Stop consume que %s", b.config.QueName)
 	if !b.channel.IsClosed() {
 		err := b.channel.Close()
 		if err != nil {
 			b.logger.Printf("failed to close channel:  %s", err)
+			return err
 		}
 	}
+	return nil
 }
 
 func (b *baseWorker) connect() error {

@@ -23,7 +23,7 @@ type Handler interface {
 
 type Worker interface {
 	Run(ctx context.Context) error
-	Close()
+	Close() error
 }
 
 type handlerError struct {

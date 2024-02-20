@@ -36,7 +36,7 @@ func PublishMessage(c Config, publishing *amqp.Publishing) error {
 	defer func(channel *amqp.Channel) {
 		err := channel.Close()
 		if err != nil {
-			log.Printf("cannot close connection err=%s", err)
+			log.Printf("cannot close connection error: %s", err)
 		}
 	}(channel)
 	err = channel.ExchangeDeclare(c.Exchange,

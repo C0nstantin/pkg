@@ -37,18 +37,22 @@ func (p *WorkerPool) Start(ctx context.Context) error {
 	}
 }
 
-func (p *WorkerPool) Stop() {
+func (p *WorkerPool) Stop() (err error) {
+
 	if !p.conn.IsClosed() {
-		err := p.conn.Close()
+		err = p.conn.Close()
 		if err != nil {
 			fmt.Printf("failed to close connection:  %s", err)
 		}
 	}
-
 	for _, worker := range p.workers {
-		worker.Close()
+		err := worker.Close()
+		if err != nil {
+			fmt.Printf("failed to close worker:  %s", err)
+		}
 	}
 	p.wg.Wait()
+	return err
 }
 
 func initSimpleQue(conn *amqp.Connection, config Config) error {

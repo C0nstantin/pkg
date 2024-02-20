@@ -19,12 +19,12 @@ func PublishMessage(c Config, publishing *amqp.Publishing) error {
 	}
 	conn, err := amqp.Dial(c.DSN)
 	if err != nil {
-		return fmt.Errorf(" connect to %s return error:  %w", c.DSN, err)
+		return fmt.Errorf("PushMessage connect to %s return error:  %w", c.DSN, err)
 	}
 	defer func(conn *amqp.Connection) {
 		err := conn.Close()
 		if err != nil {
-			log.Printf("can not  close connection err = %s", err)
+			log.Printf("can not close connection err = %s", err)
 		}
 	}(conn)
 

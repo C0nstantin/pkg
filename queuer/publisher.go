@@ -2,18 +2,21 @@ package queuer
 
 import (
 	"fmt"
+	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
-	logs "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 )
 
+// PublishMessage publishes a message to a RabbitMQ exchange.
+// It establishes a connection to the RabbitMQ server, creates a channel, declares an exchange,
+// and publishes the message to the exchange with the specified routing key.
+// It returns an error if any of the steps fail.
 func PublishMessage(c Config, publishing *amqp.Publishing) error {
 	err := c.MergeDefaults()
 	if err != nil {
 		return err
 	}
-
 	conn, err := amqp.Dial(c.DSN)
 	if err != nil {
 		return fmt.Errorf(" connect to %s return error:  %w", c.DSN, err)
@@ -21,7 +24,7 @@ func PublishMessage(c Config, publishing *amqp.Publishing) error {
 	defer func(conn *amqp.Connection) {
 		err := conn.Close()
 		if err != nil {
-			logs.Errorf("can not  close connection err = %s", err)
+			log.Printf("can not  close connection err = %s", err)
 		}
 	}(conn)
 
@@ -33,7 +36,7 @@ func PublishMessage(c Config, publishing *amqp.Publishing) error {
 	defer func(channel *amqp.Channel) {
 		err := channel.Close()
 		if err != nil {
-			logs.Errorf("cannot close connection err=%s", err)
+			log.Printf("cannot close connection err=%s", err)
 		}
 	}(channel)
 	err = channel.ExchangeDeclare(c.Exchange,
@@ -57,11 +60,17 @@ func PublishMessage(c Config, publishing *amqp.Publishing) error {
 	if err != nil {
 		return fmt.Errorf("PushMessage to %s, with routekey %s return error %w ", c.Exchange, c.RoutKey, err)
 	}
-	logs.Printf("Send message: %s to exchange %s :->  %s ", string(publishing.MessageId), c.Exchange, c.RoutKey)
+	log.Printf("Send message: %s to exchange %s :->  %s ", string(publishing.MessageId), c.Exchange, c.RoutKey)
 
 	return nil
 }
 
+// PublishTextMessage publishes a text message using the specified configuration and message data.
+// It calls the PublishMessage function internally, passing the appropriate content type and message body.
+// It merges the default configuration with the provided one and establishes a connection to the RabbitMQ server.
+// Then it creates a channel and declares an exchange based on the configuration.
+// Finally, it publishes the message to the exchange with the specified routing key.
+// It returns an error if any of the steps fail.
 func PublishTextMessage(c Config, message []byte) error {
 	return PublishMessage(c, &amqp.Publishing{
 		ContentType: "text/plain",

@@ -7,65 +7,13 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-// RetryRejector Rejector for retry worker
-type RetryRejector struct {
-	MaxRetry int32
-	Cnf      *Config
-}
-
-func (r RetryRejector) Reject(delivery *amqp.Delivery) error {
-	var currentRepeat int32
-	log.Printf("REJECTOR %#v", delivery.MessageId)
-	if res, ok := delivery.Headers["x-death"]; ok {
-		for _, t := range res.([]interface{}) {
-			currentRepeat = int32(t.(amqp.Table)["count"].(int64))
-		}
-	}
-
-	if currentRepeat+1 >= r.MaxRetry {
-		err := PublishMessage(Config{
-			DSN:             r.Cnf.DSN,
-			Exchange:        delivery.Exchange + ".topic",
-			RoutKey:         delivery.RoutingKey + ".fail",
-			ExchangeOptions: r.Cnf.ExchangeOptions,
-			PublishOptions:  r.Cnf.PublishOptions,
-			QueueOptions:    r.Cnf.QueueOptions,
-			ConsumeOptions:  r.Cnf.ConsumeOptions,
-		}, &amqp.Publishing{
-			Headers:         delivery.Headers,
-			ContentType:     delivery.ContentType,
-			ContentEncoding: delivery.ContentEncoding,
-			MessageId:       delivery.MessageId,
-			Timestamp:       time.Time{},
-			Type:            delivery.Type,
-			UserId:          delivery.UserId,
-			AppId:           delivery.AppId,
-			Body:            delivery.Body,
-		})
-		if err != nil {
-			return err
-		}
-		err = delivery.Ack(false)
-		if err != nil {
-			return err
-		}
-	} else {
-		err := delivery.Reject(false)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // StartRetryWorker start worker with RetryRejector with and MaxRetry
 // if handler function return error worker call RetryRejector.Reject(message)
 // rejector put this message to queue ("{{base_queue}}.retry") with ttl = params TTL second, and when ttl is over resend
 // message to base exchange with base route key
 // after MaxRetry fail times put message to queue with name "{{base_queue}}.fail"
 func StartRetryWorker(conf *Config, handler WorkerHandler, TTL, MaxRetry int32) {
-
-	rejector := RetryRejector{
+	rejector := &RetryRejector{
 		MaxRetry: MaxRetry,
 		Cnf:      conf,
 	}

@@ -3,26 +3,14 @@ package queuer
 import (
 	"log"
 	"time"
-
-	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type rejector struct {
-}
+func StartSimpleWorker(c *Config, handler WorkerHandler, rej WorkerRejector) error {
 
-func (r rejector) Reject(delivery *amqp.Delivery) error {
-	return delivery.Reject(false)
-}
-
-func StartSimpleWorker(c *Config, handler WorkerHandler, rej WorkerRejector) {
-	if rej == nil {
-		rej = rejector{}
-	}
 	worker, err := NewWorker(c, handler, rej)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-
 	go worker.Run()
 
 	for {

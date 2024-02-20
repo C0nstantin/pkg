@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/ilyakaznacheev/cleanenv v1.4.2
 	github.com/stretchr/testify v1.8.4
-	gitlab.wm.local/wm/pkg/log v0.3.0
 )
 
 require (

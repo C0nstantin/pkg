@@ -1,37 +1,18 @@
 package queuer
 
 import (
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
+	"log"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
-	log "github.com/sirupsen/logrus"
 )
 
-var (
-	ErrConnectionClosed = errors.New("Connection closed. ")
-	ErrChanelClosed     = errors.New("Chanel closed. ")
-)
-
-type WorkerHandler interface {
+type WorkerInterface interface {
 	Handle(delivery *amqp.Delivery) error
-}
-
-type WorkerRejector interface {
 	Reject(delivery *amqp.Delivery) error
-}
-
-type EmptyWorkerHandeler struct{}
-
-func (emptyHandler *EmptyWorkerHandeler) Handle(*amqp.Delivery) error {
-	return nil
-}
-
-type EmptyWorkerRejector struct{}
-
-func (e *EmptyWorkerRejector) Reject(delivery *amqp.Delivery) error {
-	return delivery.Reject(false)
+	Close()
 }
 
 type Worker struct {
@@ -49,21 +30,37 @@ type Worker struct {
 }
 
 func NewWorker(config *Config, handler WorkerHandler, rejector WorkerRejector) (*Worker, error) {
+	if handler == nil {
+		return nil, errors.New("handler can not be nil")
+	}
+
+	if rejector == nil {
+		rejector = &EmptyRejector{}
+	}
+	if config == nil {
+		return nil, errors.New("config can not be nil")
+	}
+
 	err := config.MergeDefaults()
 	if err != nil {
 		return nil, err
 	}
+
+	//connection
 	conn, err := amqp.Dial(config.DSN)
 	if err != nil {
-		return nil, fmt.Errorf("NewWorker amqp connect to %s error:  %w", config.DSN, err)
+		return nil, errors.Errorf("not possible to connect to %s:  %s", config.DSN, err)
 	}
+
+	//create channel
 	channel, err := conn.Channel()
 	if err != nil {
-		return nil, fmt.Errorf("NewWorker amqp create Channel error: %w", err)
+		return nil, errors.Errorf("can't create channel:  %s", err)
 	}
+
 	err = channel.Qos(1, 0, false)
 	if err != nil {
-		return nil, err
+		return nil, errors.Errorf("can't set Qos error:  %s", err)
 	}
 	if len(config.Exchange) > 0 {
 		err = channel.ExchangeDeclare(
@@ -75,7 +72,7 @@ func NewWorker(config *Config, handler WorkerHandler, rejector WorkerRejector) (
 			config.ExchangeOptions.NoWait,
 			config.ExchangeOptions.Args)
 		if err != nil {
-			return nil, fmt.Errorf("NewWorker amqp declare exchanger %s error: %w", config.Exchange, err)
+			return nil, errors.Errorf("can't declare exchange %s error: %s", config.Exchange, err)
 		}
 	}
 
@@ -86,7 +83,7 @@ func NewWorker(config *Config, handler WorkerHandler, rejector WorkerRejector) (
 		config.QueueOptions.NoWait,
 		config.QueueOptions.Args)
 	if err != nil {
-		return nil, fmt.Errorf("NewWorker amqp que %s declare error: %w", config.QueName, err)
+		return nil, errors.Errorf("can't declare queue %s: %s", config.QueName, err)
 	}
 
 	if len(config.Exchange) > 0 {
@@ -97,7 +94,7 @@ func NewWorker(config *Config, handler WorkerHandler, rejector WorkerRejector) (
 			false,
 			nil)
 		if err != nil {
-			return nil, fmt.Errorf("NewWorker amqp que bind %s to exchange %s with routeKey %s error %w",
+			return nil, errors.Errorf("can't bind  que %s to exchange %s with routeKey %s error %s",
 				que.Name,
 				config.Exchange,
 				config.RoutKey,
@@ -149,17 +146,15 @@ func (w *Worker) Run() {
 		for msg := range messages {
 			err := w.Handler.Handle(&msg)
 			if err != nil {
-				fErr := w.Rejector.Reject(&msg)
-				if fErr != nil {
+				w.Errors <- fmt.Errorf("handle message with  %s return error: %w, and try send to rejector", msg, err)
+				if fErr := w.Rejector.Reject(&msg); fErr != nil {
 					w.Fatal <- fErr
 				}
-				w.Errors <- fmt.Errorf("message with id= %s, error: %w", msg.MessageId, err)
 			} else {
 				w.Done <- &msg
-
 				err := msg.Ack(false)
 				if err != nil {
-					log.Errorf("can not send ack error=%s", err)
+					log.Printf("Error ack message: %s", err)
 					return
 				}
 			}
@@ -176,7 +171,7 @@ func (w *Worker) Stop() {
 	time.Sleep(2 * time.Second)
 	err = w.conn.Close()
 	if err != nil {
-		log.Errorf("can nat close connection = %s", err)
+		log.Printf("failed close amqp connection , error: %s", err)
 		return
 	}
 }

@@ -22,7 +22,9 @@ func init() {
 	logrus.SetOutput(os.Stdout)
 }
 
-type Logger logrus.Logger
+type Logger struct {
+	logrus.Logger
+}
 
 func DefaultLogger() *logrus.Logger {
 	logger := logrus.StandardLogger()

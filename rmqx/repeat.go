@@ -71,12 +71,12 @@ func (r RepeatableRejector) Reject(delivery *amqp.Delivery) error {
 	return nil
 }
 
-func NewRepeatWorkerPool(cnf Config, workerCount int, handler Handler, errHandler ErrorHandler, TTLBase, TTLRang, MaxRepeat int32) (*WorkerPool, error) {
+func NewRepeatWorkerPool(cnf *Config, workerCount int, handler Handler, errHandler ErrorHandler, TTLBase, TTLRang, MaxRepeat int32) (*WorkerPool, error) {
 	rejector := &RepeatableRejector{
 		TTLBase:   TTLBase,
 		TTLRang:   TTLRang,
 		MaxRepeat: MaxRepeat,
-		Cnf:       &cnf,
+		Cnf:       cnf,
 	}
 	if workerCount <= 0 {
 		return nil, errors.New("worker count must be greater than 0")

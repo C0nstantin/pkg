@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-func NewSimpleWorkerPool(config Config, workerCount int, handler Handler, errorHandler ErrorHandler) (*WorkerPool, error) {
+func NewSimpleWorkerPool(config *Config, workerCount int, handler Handler, errorHandler ErrorHandler) (*WorkerPool, error) {
 	if workerCount <= 0 {
 		return nil, errors.New("worker count must be greater than 0")
 	}

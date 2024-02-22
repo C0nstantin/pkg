@@ -58,10 +58,10 @@ func (r *RetryRejector) Reject(delivery *amqp.Delivery) error {
 	return nil
 }
 
-func NewRetryWorkerPool(cnf Config, workerCount int, handler Handler, errHandler ErrorHandler, TTL, MaxRetry int32) (*WorkerPool, error) {
+func NewRetryWorkerPool(cnf *Config, workerCount int, handler Handler, errHandler ErrorHandler, TTL, MaxRetry int32) (*WorkerPool, error) {
 	rejector := &RetryRejector{
 		MaxRetry: MaxRetry,
-		Cnf:      &cnf,
+		Cnf:      cnf,
 	}
 
 	if workerCount <= 0 {

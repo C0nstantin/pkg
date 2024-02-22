@@ -55,7 +55,7 @@ func (p *WorkerPool) Stop() (err error) {
 	return err
 }
 
-func initSimpleQue(conn *amqp.Connection, config Config) error {
+func initSimpleQue(conn *amqp.Connection, config *Config) error {
 	channel, err := conn.Channel()
 	if err != nil {
 		return errors.E(err)

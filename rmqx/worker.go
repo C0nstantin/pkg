@@ -26,7 +26,7 @@ type baseWorker struct {
 	errorHandler    ErrorHandler
 }
 
-func NewWorker(name string, config Config, conn *amqp.Connection, handler Handler, rejector Rejector, errorHandler ErrorHandler) (Worker, error) {
+func NewWorker(name string, config *Config, conn *amqp.Connection, handler Handler, rejector Rejector, errorHandler ErrorHandler) (Worker, error) {
 	if name == "" {
 		name = fmt.Sprintf("worker-%d", rand.Int())
 	}
@@ -36,7 +36,7 @@ func NewWorker(name string, config Config, conn *amqp.Connection, handler Handle
 
 	return &baseWorker{
 		name:            name,
-		config:          &config,
+		config:          config,
 		conn:            conn,
 		handler:         handler,
 		rejector:        rejector,

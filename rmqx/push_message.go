@@ -76,7 +76,7 @@ func PublishTextMessage(c Config, message []byte) error {
 }
 
 type Pusher interface {
-	PushMessage(*amqp.Publishing) error
+	PushMessage(ctx context.Context, exchange, routingKey string, publishing *amqp.Publishing) error
 	Close()
 }
 

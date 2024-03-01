@@ -77,7 +77,7 @@ func PublishTextMessage(c Config, message []byte) error {
 
 type Pusher interface {
 	PushMessage(ctx context.Context, exchange, routingKey string, publishing *amqp.Publishing) error
-	Close()
+	Close() error
 }
 
 type PusherImpl struct {
@@ -117,7 +117,7 @@ func (p *PusherImpl) connect() error {
 	return nil
 }
 
-func (p *PusherImpl) Close() {
+func (p *PusherImpl) Close() error {
 	if p.ch != nil {
 		err := p.ch.Close()
 		if err != nil {
@@ -130,4 +130,5 @@ func (p *PusherImpl) Close() {
 			log.Printf("cannot close connection err=%s", err)
 		}
 	}
+	return nil
 }

@@ -3,7 +3,6 @@ package config
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path"
 
@@ -31,7 +30,7 @@ func LoadConfig(cfg interface{}) error {
 		case !errors.Is(err, os.ErrNotExist):
 			return fmt.Errorf("undefined error with config file:  %w ", err)
 		default:
-			log.Println("Warning: config file not found")
+			//log.Println("Warning: config file not found")
 			err := cleanenv.ReadEnv(cfg)
 			if err != nil {
 				return err

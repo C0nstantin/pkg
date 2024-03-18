@@ -46,7 +46,7 @@ func ELog(returnedError, loggedError error) error {
 	if loggedError == nil {
 		return nil
 	}
-	logs.Error("returnedError %+v\nLoggedError %+v\n", returnedError, loggedError)
+	logs.Errorf("returnedError %s\nLoggedError %+v\n", returnedError, loggedError)
 	return E(returnedError)
 }
 

@@ -29,6 +29,16 @@ var (
 	ErrInvalidAuthKey = errors.New("authorization key small or empty")
 )
 
+// NewGinJWTMiddlewareMust creates a new GinJWTMiddleware instance with the provided authentication key.
+// It is a convenience function that panics if the creation of the middleware fails, making it suitable
+// for use in situations where failure to create the middleware should result in an immediate halt of the application.
+// This function is useful for initializing middleware in global scope or during application startup.
+//
+// Parameters:
+// - authKey []byte: The secret key used for token generation and validation. It must be at least 128 bits long.
+//
+// Returns:
+// - *jwt.GinJWTMiddleware: A pointer to the newly created GinJWTMiddleware instance.
 func NewGinJWTMiddlewareMust(authKey []byte) *jwt.GinJWTMiddleware {
 	middleware, err := NewGinJWTMiddleware(authKey)
 	if err != nil {
@@ -37,6 +47,20 @@ func NewGinJWTMiddlewareMust(authKey []byte) *jwt.GinJWTMiddleware {
 	return middleware
 }
 
+// NewGinJWTMiddleware creates a new instance of GinJWTMiddleware configured with the provided authentication key.
+// This middleware is used to handle JWT authentication for Gin-based web applications. It sets up the necessary
+// configuration for JWT token validation, including the realm, key, token expiration, payload function, and response
+// handlers for various authentication events.
+//
+// Parameters:
+// - authKey []byte: The secret key used for signing and verifying JWT tokens. It must be at least 128 bits (16 bytes) long.
+//
+// Returns:
+// - *jwt.GinJWTMiddleware: A pointer to the newly created GinJWTMiddleware instance, configured with the provided settings.
+// - error: An error that indicates why the middleware could not be created. This is typically due to an insufficiently long authKey.
+//
+// Note: The function checks if the authKey is at least 128 bits long. If it is not, it returns an error indicating
+// that the key is invalid. This is a critical security requirement to ensure the strength of the JWT tokens.
 func NewGinJWTMiddleware(authKey []byte) (*jwt.GinJWTMiddleware, error) {
 	if len(authKey) <= 128 {
 		return nil, ErrInvalidAuthKey
@@ -66,6 +90,17 @@ type Response struct {
 	Expire string `json:"expire"`
 }
 
+// PayloadFunc generates JWT claims based on the provided data.
+// This function is intended to be used as a callback for the jwt.GinJWTMiddleware,
+// allowing customization of the JWT payload. It checks if the input data is of type *JWTBody,
+// and if so, extracts the 'Id' and 'Email' fields to be included in the JWT claims.
+//
+// Parameters:
+// - data interface{}: The data from which to generate the JWT claims. Expected to be of type *JWTBody.
+//
+// Returns:
+// - jwt.MapClaims: A map representing the JWT claims. Includes 'Id' and 'Email' if the input is of type *JWTBody;
+// otherwise, returns an empty map.
 func PayloadFunc(data interface{}) jwt.MapClaims {
 	if v, ok := data.(*JWTBody); ok {
 		return jwt.MapClaims{
@@ -76,6 +111,16 @@ func PayloadFunc(data interface{}) jwt.MapClaims {
 	return jwt.MapClaims{}
 }
 
+// Unauthorized handles unauthorized access attempts by either returning a JSON response with an error code and message
+// if the request accepts JSON, or by redirecting the user to a predefined unauthorized access URL.
+// It checks the request headers to determine the preferred response format.
+//
+// Parameters:
+// - c *gin.Context: The context of the current HTTP request. It contains request information, response writers, and other middleware-related data.
+// - code int: The HTTP status code to be returned in the case of a JSON response.
+// - message string: The error message to be included in the JSON response or to be used as a basis for redirection in case of non-JSON requests.
+//
+// This function does not return any value. It directly writes to the HTTP response or redirects the user.
 func Unauthorized(c *gin.Context, code int, message string) {
 	if isJSON(c) {
 		c.JSON(code, gin.H{
@@ -88,6 +133,17 @@ func Unauthorized(c *gin.Context, code int, message string) {
 	}
 }
 
+// LoginResponse handles the response to a successful login attempt. It determines the response format based on the client's request headers.
+// If the client accepts JSON, it responds with a JSON object containing the login status code, token, and token expiration time.
+// Otherwise, it redirects the client to a URL specified by query parameters or environment variables, appending the request host to the URL.
+//
+// Parameters:
+// - c *gin.Context: The context of the current HTTP request. It contains request information, response writers, and other middleware-related data.
+// - code int: The HTTP status code to be returned in the case of a JSON response.
+// - token string: The JWT token generated upon successful authentication.
+// - expire time.Time: The expiration time of the generated JWT token.
+//
+// This function does not return any value. It directly writes to the HTTP response or redirects the user based on the request headers.
 func LoginResponse(c *gin.Context, code int, token string, expire time.Time) {
 	if isJSON(c) {
 		c.JSON(http.StatusOK, &Response{
@@ -107,6 +163,15 @@ func LoginResponse(c *gin.Context, code int, token string, expire time.Time) {
 	}
 }
 
+// LogoutResponse handles the response to a logout request. It determines the response format based on the client's request headers.
+// If the client accepts JSON, it responds with a JSON object containing the HTTP status code indicating a successful operation.
+// Otherwise, it redirects the client to a URL specified by query parameters, environment variables, or default settings.
+//
+// Parameters:
+// - c *gin.Context: The context of the current HTTP request. It contains request information, response writers, and other middleware-related data.
+// - code int: The HTTP status code to be returned in the case of a JSON response. This is typically http.StatusOK to indicate a successful logout.
+//
+// This function does not return any value. It directly writes to the HTTP response or redirects the user based on the request headers.
 func LogoutResponse(c *gin.Context, code int) {
 	if isJSON(c) {
 		c.JSON(code, gin.H{
@@ -164,6 +229,10 @@ type Auth struct {
 	Jwt *jwt.GinJWTMiddleware
 }
 
+// AuthMiddleware description of the Go function.
+//
+// No parameters.
+// Returns a gin.HandlerFunc.
 func (a Auth) AuthMiddleware() gin.HandlerFunc {
 	return a.Jwt.MiddlewareFunc()
 }
@@ -175,6 +244,22 @@ func NewJwtAuthService(apiKey []byte) (*Auth, error) {
 	}
 	return &Auth{Jwt: j}, nil
 }
+
+// NewMustJwtAuthService creates a new instance of Auth using the provided API key for JWT authentication.
+// This function is a convenience wrapper around NewGinJWTMiddleware, ensuring that the JWT middleware is
+// successfully created or panics otherwise. It is useful for initializing the Auth service in scenarios
+// where failing to create the service should halt the application startup.
+//
+// Parameters:
+//   - apiKey []byte: The secret key used for signing and verifying JWT tokens. It must meet the security
+//     requirements enforced by NewGinJWTMiddleware, including being at least 128 bits long.
+//
+// Returns:
+// - *Auth: A pointer to the newly created Auth instance, which includes the configured JWT middleware.
+//
+// Note: This function will panic if the provided apiKey is invalid or if any other error occurs during
+// the creation of the JWT middleware. This is intended to catch configuration errors during application
+// initialization rather than at runtime.
 func NewMustJwtAuthService(apiKey []byte) *Auth {
 	j, err := NewGinJWTMiddleware(apiKey)
 	if err != nil {

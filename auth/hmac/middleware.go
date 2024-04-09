@@ -2,15 +2,9 @@ package hmac
 
 import (
 	"errors"
-	
+
 	"github.com/gin-gonic/gin"
 )
-
-/*
-type Auth interface {
-	AuthMiddleware() gin.HandlerFunc
-}
-*/
 
 var ErrAuthHeaderNotFound = errors.New("authorization header not found")
 var ErrRequestUnAuthorized = errors.New("request not authorize")

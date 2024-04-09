@@ -1,11 +1,11 @@
-module gitlab.wm.local/wm/pkg/transport/pgx_client
+module github.com/C0nstantin/pkg/transport/pgx_client
 
 go 1.21
 
 require (
 	github.com/jackc/pgx/v5 v5.5.2
 	github.com/pashagolub/pgxmock/v3 v3.3.0
-	gitlab.wm.local/wm/pkg/log v0.3.1
+	github.com/C0nstantin/pkg/log v0.3.1
 )
 
 require (

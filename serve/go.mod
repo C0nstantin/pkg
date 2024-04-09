@@ -1,4 +1,4 @@
-module gitlab.wm.local/wm/pkg/serve
+module github.com/C0nstantin/pkg/serve
 
 go 1.19
 

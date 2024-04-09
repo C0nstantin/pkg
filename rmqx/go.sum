@@ -18,10 +18,10 @@ github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.8.0 h1:pSgiaMZlXftHpm5L7V1+rVB+AZJydKsMxsQBIJw4PKk=
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
-gitlab.wm.local/wm/pkg/errors v0.3.0 h1:5Rx+OM9Y/eP8uk/tSKaeZ6iVs5zdybFJZP3nZYkSYHk=
-gitlab.wm.local/wm/pkg/errors v0.3.0/go.mod h1:8kiC4d0ecPCIZ//AMOjIl0gPm6fc0Opki0nFFMoKtoI=
-gitlab.wm.local/wm/pkg/log v0.3.1 h1:QU6KcWMHfwK6/yAgixzMX9XDFFVUKCM48YFyO1qKcMU=
-gitlab.wm.local/wm/pkg/log v0.3.1/go.mod h1:N4YINMxdNgNK1ACbywqXISzq7n5c79FXuEwJThN0SwQ=
+github.com/C0nstantin/pkg/errors v0.3.0 h1:5Rx+OM9Y/eP8uk/tSKaeZ6iVs5zdybFJZP3nZYkSYHk=
+github.com/C0nstantin/pkg/errors v0.3.0/go.mod h1:8kiC4d0ecPCIZ//AMOjIl0gPm6fc0Opki0nFFMoKtoI=
+github.com/C0nstantin/pkg/log v0.3.1 h1:QU6KcWMHfwK6/yAgixzMX9XDFFVUKCM48YFyO1qKcMU=
+github.com/C0nstantin/pkg/log v0.3.1/go.mod h1:N4YINMxdNgNK1ACbywqXISzq7n5c79FXuEwJThN0SwQ=
 go.uber.org/goleak v1.2.1 h1:NBol2c7O1ZokfZ0LEU9K6Whx/KnwvepVetCUhtKja4A=
 go.uber.org/goleak v1.2.1/go.mod h1:qlT2yGI9QafXHhZZLxlSuNsMw3FFLxBr+tBRlmO1xH4=
 golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 h1:0A+M6Uqn+Eje4kHMK80dtF3JCXC4ykBgQG4Fe06QRhQ=

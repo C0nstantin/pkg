@@ -3,9 +3,9 @@ package rmqx
 import (
 	"context"
 	"fmt"
+	"github.com/C0nstantin/pkg/errors"
+	"github.com/C0nstantin/pkg/log"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"gitlab.wm.local/wm/pkg/errors"
-	"gitlab.wm.local/wm/pkg/log"
 )
 
 // PublishMessage publishes a message to a RabbitMQ exchange.

@@ -1,4 +1,4 @@
-module gitlab.wm.local/wm/pkg/utils
+module github.com/C0nstantin/pkg/utils
 
 go 1.19
 

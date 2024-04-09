@@ -1,4 +1,4 @@
-module gitlab.wm.local/wm/pkg/sanitizer
+module github.com/C0nstantin/pkg/sanitizer
 
 go 1.19
 
@@ -6,7 +6,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.24
 	github.com/rollick/douceur v0.3.3
 	github.com/slt/douceur v0.3.3
-	golang.org/x/net v0.11.0
+	golang.org/x/net v0.24.0
 )
 
 require (

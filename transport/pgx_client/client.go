@@ -3,10 +3,10 @@ package pgx_client
 import (
 	"context"
 	"fmt"
+	"github.com/C0nstantin/pkg/log"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"gitlab.wm.local/wm/pkg/log"
 )
 
 type Client interface {

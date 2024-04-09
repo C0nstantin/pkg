@@ -1,11 +1,11 @@
-module gitlab.wm.local/wm/pkg/rmqx
+module github.com/C0nstantin/pkg/rmqx
 
 go 1.20
 
 require (
 	github.com/rabbitmq/amqp091-go v1.9.0
-	gitlab.wm.local/wm/pkg/errors v0.3.0
-	gitlab.wm.local/wm/pkg/log v0.3.1
+	github.com/C0nstantin/pkg/errors v0.3.0
+	github.com/C0nstantin/pkg/log v0.3.1
 )
 
 require (

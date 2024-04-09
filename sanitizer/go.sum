@@ -8,5 +8,5 @@ github.com/rollick/douceur v0.3.3 h1:z3QcyrcaxmULIYToYtuE17LqaDgvaYqpsfJJgttbyc4
 github.com/rollick/douceur v0.3.3/go.mod h1:TBu/yAgvRrUcfj1MoQ2nP4Enr1zpz8iGMczoEXwy5us=
 github.com/slt/douceur v0.3.3 h1:faAL6w6asG85ETdHNUS8z0X1HmkWiCz4fAE/f5mw4TU=
 github.com/slt/douceur v0.3.3/go.mod h1:Uj3JyC1ZjAXLimbcCogGYSu2PYiTiQeBsweZZAdJV0g=
-golang.org/x/net v0.11.0 h1:Gi2tvZIJyBtO9SDr1q9h5hEQCp/4L2RQ+ar0qjx2oNU=
-golang.org/x/net v0.11.0/go.mod h1:2L/ixqYpgIVXmeoSA/4Lu7BzTG4KIyPIryS4IsOd1oQ=
+golang.org/x/net v0.24.0 h1:1PcaxkF854Fu3+lvBIx5SYn9wRlBzzcnHZSiaFFAb0w=
+golang.org/x/net v0.24.0/go.mod h1:2Q7sJY5mzlzWjKtYUEXSlBWCdyaioyXzRB2RtU8KVE8=

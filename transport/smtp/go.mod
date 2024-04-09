@@ -1,3 +1,3 @@
-module gitlab.wm.local/wm/pkg/transport/smtp
+module github.com/C0nstantin/pkg/transport/smtp
 
 go 1.19

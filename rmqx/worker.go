@@ -3,8 +3,8 @@ package rmqx
 import (
 	"context"
 	"fmt"
+	"github.com/C0nstantin/pkg/errors"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"gitlab.wm.local/wm/pkg/errors"
 	"log"
 	"math/rand"
 )

@@ -1,8 +1,8 @@
-module gitlab.wm.local/wm/pkg/closer
+module github.com/C0nstantin/pkg/closer
 
 go 1.21
 
-require gitlab.wm.local/wm/pkg/log v0.3.1
+require github.com/C0nstantin/pkg/log v0.3.1
 
 require (
 	github.com/sirupsen/logrus v1.9.3 // indirect

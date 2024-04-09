@@ -2,9 +2,9 @@ package rmqx
 
 import (
 	"fmt"
+	"github.com/C0nstantin/pkg/errors"
+	"github.com/C0nstantin/pkg/log"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"gitlab.wm.local/wm/pkg/errors"
-	"gitlab.wm.local/wm/pkg/log"
 	"strconv"
 	"sync"
 	"time"

@@ -10,6 +10,7 @@ import (
 type JWTBody struct {
 	Id    string
 	Email string
+	Info  map[string]interface{}
 }
 
 var (
@@ -27,6 +28,14 @@ func BodyFromContext(c *gin.Context) (*JWTBody, error) {
 	email, ok := claims["Email"].(string)
 	if !ok {
 		return nil, ErrInvalidEmail
+	}
+	info, ok := claims["Info"].(map[string]interface{})
+	if ok {
+		return &JWTBody{
+			Id:    id,
+			Email: email,
+			Info:  info,
+		}, nil
 	}
 
 	return &JWTBody{

@@ -81,6 +81,7 @@ func NewGinJWTMiddleware(authKey []byte) (*jwt.GinJWTMiddleware, error) {
 		SendCookie:     true,
 		SecureCookie:   true,
 		CookieHTTPOnly: true,
+		CookieSameSite: http.SameSiteNoneMode,
 	})
 }
 
@@ -106,6 +107,7 @@ func PayloadFunc(data interface{}) jwt.MapClaims {
 		return jwt.MapClaims{
 			"Id":    v.Id,
 			"Email": v.Email,
+			"Info":  v.Info,
 		}
 	}
 	return jwt.MapClaims{}

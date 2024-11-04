@@ -1,15 +1,11 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path"
-
-	"github.com/ilyakaznacheev/cleanenv"
 )
 
-var ErrFileNotExists = errors.New("config file not found, set env variable CONFIG to path config file")
 var defaultConfigPath = "./config/config.yaml"
 
 // MustLoadConfig attempts to load the application configuration into the provided struct.
@@ -57,39 +53,31 @@ func LoadConfig(cfg interface{}) error {
 	// cfg only point to struct
 	configFile, exists := os.LookupEnv("CONFIG")
 	if !exists {
-		currentDir, _ := os.Getwd()
-		defaultConfig := path.Join(currentDir, defaultConfigPath)
-		_, err := os.Stat(defaultConfig)
-		switch {
-		case err == nil:
-			configFile = defaultConfig
-		case !errors.Is(err, os.ErrNotExist):
-			return fmt.Errorf("undefined error with config file:  %w ", err)
-		default:
-			//log.Println("Warning: config file not found")
-			err := cleanenv.ReadEnv(cfg)
-			if err != nil {
-				return err
-			}
-			return nil // ErrFileNotExists
+		configFile = defaultConfigPath
+	}
+	currentDir, _ := os.Getwd()
+	configFile = path.Join(currentDir, configFile)
+	if _, err := os.Stat(configFile); err == nil {
+		err = readFileWithLocal(configFile, cfg)
+		if err != nil {
+			return err
 		}
 	}
-	err := cleanenv.ReadConfig(configFile, cfg)
+
+	return ReadEnv(cfg)
+}
+
+func readFileWithLocal(configFile string, cfg interface{}) error {
+	err := ReadConfig(configFile, cfg)
 	if err != nil {
 		return fmt.Errorf("config error: %w", err)
 	}
 	localConfigFile := configFile[:len(configFile)-len(path.Ext(configFile))] + ".local" + path.Ext(configFile)
-	_, err = os.Stat(localConfigFile)
-	if err == nil {
-		err := cleanenv.ReadConfig(localConfigFile, cfg)
+	if _, err = os.Stat(localConfigFile); err == nil {
+		err := ReadConfig(localConfigFile, cfg)
 		if err != nil {
 			return fmt.Errorf("config error: %w", err)
 		}
-	}
-
-	err = cleanenv.ReadEnv(cfg)
-	if err != nil {
-		return err
 	}
 
 	return nil

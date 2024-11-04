@@ -3,10 +3,9 @@ package rmqx
 import (
 	"fmt"
 	"github.com/C0nstantin/pkg/errors"
-	"github.com/C0nstantin/pkg/log"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"log"
 	"strconv"
-	"sync"
 	"time"
 )
 
@@ -28,7 +27,7 @@ func (r RepeatableRejector) Reject(delivery *amqp.Delivery) error {
 		expiration = ""
 		delivery.Headers["repeat_number"] = ""
 		que = ".fail"
-		log.Printf(" message send to  fail que ")
+		log.Println(" message send to  fail que ")
 	} else {
 		currentRepeat++
 		if delivery.Headers == nil {
@@ -37,7 +36,7 @@ func (r RepeatableRejector) Reject(delivery *amqp.Delivery) error {
 		delivery.Headers["repeat_number"] = currentRepeat
 		expiration = strconv.Itoa(int((r.TTLBase + r.TTLRang*(currentRepeat-1)) * 1000))
 		que = ".wait"
-		log.Printf(" message send to wait que with ttl  = " + expiration)
+		log.Println(" message send to wait que with ttl  = " + expiration)
 	}
 
 	err := PublishMessage(Config{
@@ -99,9 +98,7 @@ func NewRepeatWorkerPool(cnf *Config, workerCount int, handler Handler, errHandl
 	}
 	pool := &WorkerPool{
 		workers: make([]Worker, workerCount),
-		count:   workerCount,
 		conn:    conn,
-		wg:      sync.WaitGroup{},
 	}
 
 	err = initSimpleQue(conn, cnf)

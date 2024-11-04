@@ -4,10 +4,32 @@ import (
 	"context"
 	"fmt"
 	"github.com/C0nstantin/pkg/errors"
+	"github.com/C0nstantin/pkg/log"
+	"github.com/C0nstantin/pkg/utils"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"log"
 	"math/rand"
 )
+
+type internalError struct {
+	err error
+	msg *amqp.Delivery
+}
+type FatalError struct {
+	err error
+	msg []byte
+}
+
+func (f FatalError) Error() string {
+	return fmt.Sprintf("worker Fatal error: %s", f.err)
+}
+
+func (f FatalError) Unwrap() error {
+	return f.err
+}
+
+func NewFatalError(err error, msg []byte) error {
+	return &FatalError{err: err, msg: msg}
+}
 
 type baseWorker struct {
 	name            string
@@ -21,8 +43,8 @@ type baseWorker struct {
 	handler         Handler
 	rejector        Rejector
 	done            chan *amqp.Delivery
-	handlerErrors   chan handlerError
-	logger          *log.Logger
+	errors          chan internalError
+	logger          log.Logger
 	errorHandler    ErrorHandler
 }
 
@@ -31,8 +53,8 @@ func NewWorker(name string, config *Config, conn *amqp.Connection, handler Handl
 		name = fmt.Sprintf("worker-%d", rand.Int())
 	}
 
-	logger := log.New(log.Writer(), name, log.LstdFlags)
-	logger.SetPrefix(fmt.Sprintf("[%s] ", name))
+	logger := log.NewLogger()
+	logger.AddField("worker", name)
 
 	return &baseWorker{
 		name:            name,
@@ -43,7 +65,7 @@ func NewWorker(name string, config *Config, conn *amqp.Connection, handler Handl
 		notifyCloseConn: make(chan *amqp.Error),
 		notifyCloseChan: make(chan *amqp.Error),
 		done:            make(chan *amqp.Delivery),
-		handlerErrors:   make(chan handlerError),
+		errors:          make(chan internalError),
 		fatalErrors:     make(chan error),
 		logger:          logger,
 		errorHandler:    errorHandler,
@@ -56,7 +78,7 @@ func (b *baseWorker) Run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	b.logger.Printf("✅ Start consume que %s", b.config.QueName)
+	b.logger.Infof("✅ Start consume que %s, exchange %s, routing key %s", b.config.QueName, b.config.Exchange, b.config.RoutKey)
 	go func() {
 		select {
 		case err := <-b.notifyCloseChan:
@@ -69,43 +91,72 @@ func (b *baseWorker) Run(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
-			//b.Close()
+			b.logger.Info("worker closing")
+			utils.DeferCloseLog(b)
 			return nil
 		case msg := <-b.done:
 			b.logger.Printf("message %s done", msg.MessageId)
-		case err := <-b.handlerErrors:
+			workerMetrics.MsgsHandled.Inc()
+		case err := <-b.errors:
 			b.logger.Printf("handler error: %s  try rejected", err.err)
+			workerMetrics.MsgsRejected.Inc()
 			b.Reject(err)
 		case err := <-b.fatalErrors:
-			b.logger.Printf("fatal error in worker: %s", err)
-			b.logger.Printf("worker closing")
-			b.Close()
+			b.logger.Errorf("fatal error in worker: %s", err)
+			b.logger.Errorf("trace error %+v", err)
+			b.logger.Info("worker closing")
+			utils.DeferCloseLog(b)
 			return err
 		}
 	}
 }
 
 func (b *baseWorker) Handle(ctx context.Context, msg *amqp.Delivery) {
-	err := b.handler.Handle(msg, b.logger)
-	if err != nil {
-		b.logger.Printf("Error handle message: %s", err)
-		b.handlerErrors <- handlerError{err: err, msg: msg}
+	errChan := make(chan error)
+	done := make(chan struct{})
+	go func() {
+		err := b.handler.Handle(msg, b.logger)
+		var e *FatalError
+		if errors.As(err, &e) {
+			_ = msg.Reject(false)
+			b.fatalErrors <- e
+			return
+		}
+		if err != nil {
+			errChan <- err
+			return
+		}
+		done <- struct{}{}
+	}()
+
+	select {
+	case err := <-errChan:
+		b.errors <- internalError{err: err, msg: msg}
+		b.logger.Errorf("Error handle message: %s", err)
 		return
-	}
-	err = msg.Ack(false)
-	if err != nil {
-		b.fatalErrors <- err
+
+	case <-ctx.Done():
+		b.logger.Errorf("Context done: %s", ctx.Err())
 		return
+
+	case <-done:
+		b.logger.Printf("message %s done", msg.Body)
+		err := msg.Ack(false)
+		if err != nil {
+			b.logger.Errorf("Error ack message: %s", err)
+			b.fatalErrors <- err
+			return
+		}
+		b.done <- msg
 	}
-	b.done <- msg
 }
 
 func (b *baseWorker) Close() error {
-	b.logger.Printf("✅ Stop consume que %s", b.config.QueName)
+	b.logger.Infof("✅ Stop consume que %s", b.config.QueName)
 	if !b.channel.IsClosed() {
 		err := b.channel.Close()
 		if err != nil {
-			b.logger.Printf("failed to close channel:  %s", err)
+			b.logger.Errorf("failed to close channel:  %s", err)
 			return err
 		}
 	}
@@ -114,7 +165,7 @@ func (b *baseWorker) Close() error {
 
 func (b *baseWorker) connect() error {
 	if b.conn == nil {
-		return errors.New("connection is not initialized")
+		return errors.New("can not initialize connection")
 	}
 	ch, err := b.conn.Channel()
 	if err != nil {
@@ -145,18 +196,19 @@ func (b *baseWorker) connect() error {
 
 func (b *baseWorker) run(ctx context.Context) {
 	for msg := range b.msgs {
+		workerMetrics.MsgsReceived.Inc()
 		b.Handle(ctx, &msg)
 
 	}
 }
 
-func (b *baseWorker) Reject(e handlerError) {
+func (b *baseWorker) Reject(e internalError) {
 	//handle error
 	if b.errorHandler != nil {
 		b.errorHandler.ErrorHandle(e.err, e.msg)
 	}
 	err := b.rejector.Reject(e.msg)
 	if err != nil {
-		b.fatalErrors <- errors.E(fmt.Errorf("failed to reject message: %w", err))
+		b.fatalErrors <- errors.Errorf("failed to reject message: %v", err)
 	}
 }

@@ -1,10 +1,9 @@
 package errors
 
 import (
+	standardError "errors"
 	"fmt"
-
-	"github.com/pkg/errors"
-	logs "github.com/sirupsen/logrus"
+	"strings"
 )
 
 // Er  wraps an error with a stack trace and adds a message to the error.
@@ -16,10 +15,14 @@ import (
 //
 // return error with right stack trace , if e has a stack trace nothing will be added
 func Er(e error, str string, options ...interface{}) error {
-	return &errWithStack{
-		message: fmt.Sprintf(str, options...) + " : " + e.Error(),
-		err:     e,
+	if e == nil {
+		return nil
 	}
+	var s *errWithStack
+	if standardError.As(e, &s) {
+		return &errWithStack{err: fmt.Errorf(fmt.Sprintf(str, options...)+" : %w", e), stack: s.stack}
+	}
+	return &errWithStack{err: fmt.Errorf(fmt.Sprintf(str, options...)+" : %w", e), stack: NewStackTracer()}
 }
 
 // E wrap  error with right stack trace
@@ -39,45 +42,59 @@ func E(err error) error {
 	if _, ok := err.(StackTracer); ok {
 		return err
 	}
-	return errors.WithStack(err)
-}
-
-func ELog(returnedError, loggedError error) error {
-	if loggedError == nil {
-		return nil
-	}
-	logs.Errorf("returnedError %s\nLoggedError %+v\n", returnedError, loggedError)
-	return E(returnedError)
+	return &errWithStack{err: err, stack: NewStackTracer()}
 }
 
 // Is wrap standard func Is from package errors
 func Is(err error, target error) bool {
-	return errors.Is(err, target)
+	return standardError.Is(err, target)
 }
 
 // As wrap standard func  As from package errors
 func As(err error, target interface{}) bool {
-	return errors.As(err, target)
+	return standardError.As(err, target)
 }
 
-// Errorf returns an error with formatted message and stack trace
 func Errorf(format string, args ...interface{}) error {
-	return errors.Errorf(format, args...)
+	for i := 0; i < len(args); i++ {
+		if customError, ok := args[i].(error); ok {
+			var e *errWithStack
+
+			if standardError.As(customError, &e) {
+				return &errWithStack{err: fmt.Errorf(strings.Replace(format, "%v", "%w", -1), args...), stack: e.stack}
+			}
+		}
+	}
+	return &errWithStack{err: fmt.Errorf(strings.Replace(format, "%v", "%w", -1), args...), stack: NewStackTracer()}
 }
 
 // New returns a new error with the given message and stack trace.
 func New(s string) error {
-	return errors.New(s)
+	return &errWithStack{
+		err:   fmt.Errorf(s),
+		stack: NewStackTracer(),
+	}
 }
 
-func WithStack(err error) error {
-	return E(err)
+func Unwrap(err error) error {
+	return standardError.Unwrap(err)
 }
 
-func Wrap(err error, s string, options ...interface{}) error {
-	return Er(err, s, options...)
+func Join(errs ...error) error {
+	return standardError.Join(errs...)
 }
 
-func WithMessage(err error, s string) error {
-	return Er(err, s)
+func Wrap(err, err2 error) error {
+	if err2 == nil {
+		return nil
+	}
+	if err == nil {
+		return err2
+	}
+	var e *errWithStack
+	if As(err2, &e) {
+		return &errWithStack{err: err, stack: e.stack} // err2
+	}
+	fmt.Printf("Warning: change error wtithout stack trace: %v to %v \n", err2, err)
+	return &errWithStack{err: err, stack: NewStackTracer()}
 }

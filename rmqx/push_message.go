@@ -2,10 +2,10 @@ package rmqx
 
 import (
 	"context"
-	"fmt"
 	"github.com/C0nstantin/pkg/errors"
-	"github.com/C0nstantin/pkg/log"
+	"github.com/C0nstantin/pkg/utils"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"log"
 )
 
 // PublishMessage publishes a message to a RabbitMQ exchange.
@@ -16,26 +16,16 @@ func PublishMessage(c Config, publishing *amqp.Publishing) error {
 
 	conn, err := amqp.Dial(c.ConnectionUrl)
 	if err != nil {
-		return fmt.Errorf(" connect to %s return error:  %w", c.ConnectionUrl, err)
+		return NewFatalError(errors.Errorf(" connect to %s return error:  %v", c.ConnectionUrl, err), publishing.Body)
 	}
-	defer func(conn *amqp.Connection) {
-		err := conn.Close()
-		if err != nil {
-			log.Printf("can not  close connection err = %s", err)
-		}
-	}(conn)
+	defer utils.DeferCloseLog(conn)
 
 	channel, err := conn.Channel()
 	if err != nil {
-		return fmt.Errorf("PushMessage create Channel error: %w", err)
+		return NewFatalError(errors.Errorf("PushMessage create Channel error: %v", err), publishing.Body)
 	}
+	defer utils.DeferCloseLog(channel)
 
-	defer func(channel *amqp.Channel) {
-		err := channel.Close()
-		if err != nil {
-			log.Printf("cannot close connection err=%s", err)
-		}
-	}(channel)
 	err = channel.ExchangeDeclare(c.Exchange,
 		c.ExchangeOptions.Kind,
 		c.ExchangeOptions.Durable,
@@ -44,7 +34,7 @@ func PublishMessage(c Config, publishing *amqp.Publishing) error {
 		c.ExchangeOptions.NoWait,
 		c.ExchangeOptions.Args)
 	if err != nil {
-		return fmt.Errorf("PushMessage declare exchanger %s error: %w", c.Exchange, err)
+		return NewFatalError(errors.Errorf("PushMessage declare exchanger %s error: %v", c.Exchange, err), publishing.Body)
 	}
 
 	err = channel.PublishWithContext(
@@ -55,9 +45,9 @@ func PublishMessage(c Config, publishing *amqp.Publishing) error {
 		false,
 		*publishing)
 	if err != nil {
-		return fmt.Errorf("PushMessage to %s, with routekey %s return error %w ", c.Exchange, c.RoutKey, err)
+		return NewFatalError(errors.Errorf("PushMessage to %s, with routekey %s return error %v ", c.Exchange, c.RoutKey, err), publishing.Body)
 	}
-	log.Infof("Send message: %s to exchange %s :->  %s ", string(publishing.MessageId), c.Exchange, c.RoutKey)
+	log.Printf("Send message: %s to exchange %s :->  %s ", string(publishing.MessageId), c.Exchange, c.RoutKey)
 
 	return nil
 }
@@ -94,11 +84,11 @@ func NewPusherImpl(connectUrl string) *PusherImpl {
 
 func (p *PusherImpl) PushMessage(ctx context.Context, exchange, routingKey string, publishing *amqp.Publishing) error {
 	if err := p.connect(); err != nil {
-		return err
+		return NewFatalError(err, publishing.Body)
 	}
 	err := p.ch.PublishWithContext(ctx, exchange, routingKey, false, false, *publishing)
 	if err != nil {
-		return errors.E(fmt.Errorf("PushMessage to %s, with routekey %s return error %w ", exchange, routingKey, err))
+		return NewFatalError(errors.Errorf("PushMessage to %s, with routekey %s return error %v", exchange, routingKey, err), publishing.Body)
 	}
 	return nil
 }
@@ -106,29 +96,19 @@ func (p *PusherImpl) PushMessage(ctx context.Context, exchange, routingKey strin
 func (p *PusherImpl) connect() error {
 	conn, err := amqp.Dial(p.connectUrl)
 	if err != nil {
-		return errors.E(fmt.Errorf(" connect to %s return error:  %w", p.connectUrl, err))
+		return errors.Er(err, " connect to %s return,", p.connectUrl)
 	}
 	p.conn = conn
 	ch, err := conn.Channel()
 	if err != nil {
-		return errors.E(fmt.Errorf("PushMessage create Channel error: %w", err))
+		return errors.Errorf("PushMessage create Channel %v", err)
 	}
 	p.ch = ch
 	return nil
 }
 
 func (p *PusherImpl) Close() error {
-	if p.ch != nil {
-		err := p.ch.Close()
-		if err != nil {
-			log.Printf("cannot close connection err=%s", err)
-		}
-	}
-	if p.conn != nil {
-		err := p.conn.Close()
-		if err != nil {
-			log.Printf("cannot close connection err=%s", err)
-		}
-	}
+	utils.DeferCloseLog(p.ch)
+	utils.DeferCloseLog(p.conn)
 	return nil
 }

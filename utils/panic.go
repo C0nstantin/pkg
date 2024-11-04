@@ -1,7 +1,7 @@
 package utils
 
 import (
-	`log`
+	"log"
 )
 
 // PanicIfErr panic if err not nil

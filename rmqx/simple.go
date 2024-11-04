@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/C0nstantin/pkg/errors"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"sync"
 )
 
 func NewSimpleWorkerPool(config *Config, workerCount int, handler Handler, errorHandler ErrorHandler) (*WorkerPool, error) {
@@ -23,9 +22,7 @@ func NewSimpleWorkerPool(config *Config, workerCount int, handler Handler, error
 	}
 	pool := &WorkerPool{
 		workers: make([]Worker, workerCount),
-		count:   workerCount,
 		conn:    conn,
-		wg:      sync.WaitGroup{},
 	}
 
 	err = initSimpleQue(conn, config)

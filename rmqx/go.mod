@@ -2,16 +2,28 @@ module github.com/C0nstantin/pkg/rmqx
 
 go 1.21
 
-toolchain go1.21.0
-
 require (
-	github.com/C0nstantin/pkg/errors v0.3.2
-	github.com/C0nstantin/pkg/log v0.3.7
+	github.com/C0nstantin/pkg/errors v0.3.3
+	github.com/C0nstantin/pkg/log v0.3.8
+	github.com/C0nstantin/pkg/utils v0.3.2
+	github.com/prometheus/client_golang v1.20.5
 	github.com/rabbitmq/amqp091-go v1.9.0
+	gitlab.wm.local/wm/pkg/errors v1.3.6
+	gitlab.wm.local/wm/pkg/log v0.7.6
+	gitlab.wm.local/wm/pkg/utils v0.4.2
+
 )
 
 require (
+	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/klauspost/compress v1.17.9 // indirect
+	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/prometheus/client_model v0.6.1 // indirect
+	github.com/prometheus/common v0.55.0 // indirect
+	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	golang.org/x/sys v0.19.0 // indirect
+	golang.org/x/sys v0.24.0 // indirect
+	google.golang.org/protobuf v1.34.2 // indirect
 )

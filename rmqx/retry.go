@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/C0nstantin/pkg/errors"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"sync"
 	"time"
 )
 
@@ -76,9 +75,7 @@ func NewRetryWorkerPool(cnf *Config, workerCount int, handler Handler, errHandle
 	}
 	pool := &WorkerPool{
 		workers: make([]Worker, workerCount),
-		count:   workerCount,
 		conn:    conn,
-		wg:      sync.WaitGroup{},
 	}
 
 	if len(cnf.Exchange) == 0 || len(cnf.QueName) == 0 || len(cnf.RoutKey) == 0 {

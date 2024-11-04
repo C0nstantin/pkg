@@ -3,8 +3,8 @@ package rmqx
 import (
 	"context"
 	"github.com/C0nstantin/pkg/errors"
+	"github.com/C0nstantin/pkg/log"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"log"
 )
 
 var (
@@ -18,17 +18,12 @@ type Pool interface {
 	Stop()
 }
 type Handler interface {
-	Handle(delivery *amqp.Delivery, logger *log.Logger) error
+	Handle(delivery *amqp.Delivery, logger log.Logger) error
 }
 
 type Worker interface {
 	Run(ctx context.Context) error
 	Close() error
-}
-
-type handlerError struct {
-	err error
-	msg *amqp.Delivery
 }
 
 type ErrorHandler interface {
@@ -46,6 +41,6 @@ func (e *EmptyRejector) Reject(delivery *amqp.Delivery) error {
 
 type EmptyHandler struct{}
 
-func (e *EmptyHandler) Handle(delivery *amqp.Delivery, logger *log.Logger) error {
+func (e *EmptyHandler) Handle(delivery *amqp.Delivery, logger log.Logger) error {
 	return nil
 }

@@ -3,20 +3,23 @@ package rmqx
 import (
 	"context"
 	"fmt"
-	"github.com/C0nstantin/pkg/errors"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"gitlab.wm.local/wm/pkg/errors"
 	"sync"
 )
 
 type WorkerPool struct {
 	workers []Worker
 	conn    *amqp.Connection
-	wg      sync.WaitGroup
-	count   int
+	wg      *sync.WaitGroup
 }
 
 func (p *WorkerPool) Start(ctx context.Context) error {
-	errChan := make(chan error, p.count)
+
+	errChan := make(chan error, len(p.workers))
+	if p.wg == nil {
+		p.wg = &sync.WaitGroup{}
+	}
 	for _, worker := range p.workers {
 		p.wg.Add(1)
 		go func(w Worker) {
@@ -28,9 +31,13 @@ func (p *WorkerPool) Start(ctx context.Context) error {
 			}
 		}(worker)
 	}
+	go func() { initMetrics() }()
 	select {
 	case <-ctx.Done():
-		p.Stop()
+		err := p.Stop()
+		if err != nil {
+			return err
+		}
 		return nil
 	case err := <-errChan:
 		return errors.E(err)
